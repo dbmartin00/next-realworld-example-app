@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect } from "react";
 import useSWR from "swr";
 
 import ArticlePreview from "./ArticlePreview";
@@ -20,9 +20,6 @@ const ArticleList = () => {
   const page = usePageState();
   const pageCount = usePageCountState();
   const setPageCount = usePageCountDispatch();
-  const lastIndex =
-    pageCount > 480 ? Math.ceil(pageCount / 20) : Math.ceil(pageCount / 20) - 1;
-
   const { vw } = useViewport();
   const router = useRouter();
   const { asPath, pathname, query } = router;
@@ -59,21 +56,18 @@ const ArticleList = () => {
 
   const { data, error } = useSWR(fetchURL, fetcher);
 
-  if (error) {
-    return (
-      <div className="col-md-9">
-        <div className="feed-toggle">
-          <ul className="nav nav-pills outline-active"></ul>
-        </div>
-        <ErrorMessage message="Cannot load recent articles..." />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (data && data.articlesCount !== undefined) {
+      setPageCount(data.articlesCount);
+    }
+  }, [data, setPageCount]);
 
+  if (error) return <ErrorMessage message="Cannot load recent articles..." />;
   if (!data) return <LoadingSpinner />;
 
   const { articles, articlesCount } = data;
-  setPageCount(articlesCount);
+  const lastIndex =
+    pageCount > 480 ? Math.ceil(pageCount / 20) : Math.ceil(pageCount / 20) - 1;
 
   if (articles && articles.length === 0) {
     return <div className="article-preview">No articles are here... yet.</div>;
@@ -84,7 +78,6 @@ const ArticleList = () => {
       {articles?.map((article) => (
         <ArticlePreview key={article.slug} article={article} />
       ))}
-
       <Maybe test={articlesCount && articlesCount > 20}>
         <Pagination
           total={pageCount}
