@@ -17,7 +17,7 @@ const updateOptions = () => {
     };
   }
 };
-export default async function (url) {
+export default async function MyFetcher (url) {
   const { data } = await axios.get(url, updateOptions());
   return data;
 }
