@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { useTreatments, SplitContext } from '@splitsoftware/splitio-react';
 import { APP_NAME } from "../../lib/utils/constant";
+import useColorReplacement from '../useColorReplacement'; // assuming the hook is saved in this file
 
 function renderContent(treatmentWithConfig) {
   const { treatment, config } = treatmentWithConfig;
@@ -21,6 +22,8 @@ function renderContent(treatmentWithConfig) {
 }
 
 const Banner = () => {
+  useColorReplacement(); // This will run the code in the hook after the component mounts
+
   // Obtain readiness and other context properties as needed
   const { isReady, client } = useContext(SplitContext);
 
